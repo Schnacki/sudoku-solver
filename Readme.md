@@ -1,3 +1,3 @@
 # Sudoku-Solver
 
-A quick hacked backtracking algorithm to solve 9x9 sudokus.
+A quickly hacked backtracking algorithm to solve 9x9 sudokus.
