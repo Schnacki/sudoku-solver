@@ -1,26 +1,31 @@
 package sudoku
 
+import sudoku.Position.Vector
+
 class Board(private val cells: Array<Array<Int?>>) {
 
-    private fun cellsInRow(p: Position) = cells[p.row].mapNotNull { it }
+    private fun cellsInRow(p: Vector) = cells[p.row].mapNotNull { it }
 
-    private fun cellsInCol(p: Position) = cells.mapNotNull { it[p.col] }
+    private fun cellsInCol(p: Vector) = cells.mapNotNull { it[p.col] }
 
-    private fun cellsInSquare(p: Position) = cells.slice(p.row - p.row % 3..p.row - p.row % 3 + 2)
+    private fun cellsInSquare(p: Vector) = cells.slice(p.row - p.row % 3..p.row - p.row % 3 + 2)
         .flatMap {
             it.slice(p.col - p.col % 3..p.col - p.col % 3 + 2).mapNotNull { it }
         }
 
-    fun usableNumbers(p: Position) =
+    fun usableNumbers(p: Vector) =
         (1..9).filterNot { it in cellsInCol(p) || it in cellsInRow(p) || it in cellsInSquare(p) }
 
-    fun setValueAt(pos: Position, value: Int?) {
-        cells[pos.row][pos.col] = value
-    }
-
-    fun hasValue(pos: Position) = cells[pos.row][pos.col] != null
+    fun hasValue(pos: Vector) = cells[pos.row][pos.col] != null
 
     fun copy() = Board(cells.map { it.clone() }.toTypedArray())
+
+    fun <A> withValue(pos: Vector, value: Int, f: () -> A): A {
+        cells[pos.row][pos.col] = value
+        val res = f()
+        cells[pos.row][pos.col] = null
+        return res
+    }
 
     override fun toString(): String =
         cells.joinToString(separator = "\n") { row ->
@@ -32,7 +37,8 @@ class Board(private val cells: Array<Array<Int?>>) {
             input
                 .replace('.', '0')
                 .filter(Character::isDigit)
-                .map { (it - '0').takeIf { it != 0 } }
+                .map(Character::getNumericValue)
+                .map { it.takeIf { it != 0 } }
                 .chunked(9)
                 .map { it.toTypedArray() }
                 .toTypedArray()
