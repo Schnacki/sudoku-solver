@@ -6,13 +6,15 @@ import sudoku.Position.Vector.Companion.INITIAL_POSITION
 
 object SudokuSolver {
     private fun solve(board: Board): List<Board> {
-        fun solve(pos: Position): List<Board> = when {
-            pos is LastPosition -> listOf(board.copy())
-            pos is Vector && board.hasValue(pos) -> solve(pos.nextPosition())
-            else -> {
-                board.usableNumbers(pos as Vector).flatMap {
-                    board.withValue(pos, it) {
-                        solve(pos.nextPosition())
+        fun solve(pos: Position): List<Board> = when (pos) {
+            is LastPosition -> listOf(board.copy())
+            is Vector -> {
+                if (board hasValue pos) solve(pos.next())
+                else {
+                    board.usableNumbers(pos).flatMap {
+                        board.withValue(pos, it) {
+                            solve(pos.next())
+                        }
                     }
                 }
             }

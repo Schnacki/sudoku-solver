@@ -5,7 +5,7 @@ sealed class Position {
         val col: Int,
         val row: Int
     ) : Position() {
-        fun nextPosition() =
+        fun next() =
             Vector(
                 col = (col + 1) % 9,
                 row = row + col / 8
